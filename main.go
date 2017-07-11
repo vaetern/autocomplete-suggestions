@@ -5,17 +5,18 @@ import (
 	"time"
 	"log"
 
-	"github.com/xrash/smetrics"
-
 	_ "github.com/go-sql-driver/mysql"
 	//"os"
-	"sort"
 	"net/http"
 	"runtime"
 	//"math"
 )
 
 const JaroWinklerTreshold = 0.8
+
+const HowManySuggestionsToReturn = 10
+
+const DataSourceName = "user:user@tcp(127.0.0.1:3306)/acr"
 
 var trafficHubsList = []trafficHub{}
 
@@ -25,7 +26,7 @@ func main() {
 
 	runtime.GOMAXPROCS(8)
 
-	hydrationService := hydrationService{"mysql", "user:user@tcp(127.0.0.1:3306)/acr"}
+	hydrationService := hydrationService{"mysql", DataSourceName}
 
 	trafficHubsList, trigramIndexList = hydrateDataFromDb(hydrationService)
 
@@ -51,8 +52,9 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	suggestString := r.URL.RawQuery
 	result := findSuggestion(suggestString, trafficHubsList, trigramIndexList)
 	elapsed := time.Since(start)
-	fmt.Fprintln(w, result)
-	fmt.Fprintf(w, "Search process took %s", elapsed)
+
+
+	fmt.Fprintln(w, formatResult(result, elapsed))
 }
 
 
@@ -65,34 +67,4 @@ func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramI
 
 	result = findIfJaroWinklerClose(suggestString, trafficHubsList)
 	return result
-}
-
-
-
-func findIfJaroWinklerClose(suggestString string, trafficHubsList []trafficHub) []trafficHub {
-
-	rangeHubsList := []trafficHubWithRange{}
-	for _, tHub := range trafficHubsList {
-		stringRange := smetrics.JaroWinkler(suggestString, tHub.name, 0.9, 0)
-		if stringRange > JaroWinklerTreshold {
-			normalized := stringRange * 10000
-			rangeHubsList = append(rangeHubsList, trafficHubWithRange{tHub, int(normalized)})
-		}
-	}
-
-	sort.Slice(rangeHubsList, func(i, j int) bool {
-		return rangeHubsList[i].stringRange > rangeHubsList[j].stringRange
-	})
-
-	resultHubsList := []trafficHub{}
-	bias := 5
-	for i := 0; i < len(rangeHubsList); i++ {
-		resultHubsList = append(resultHubsList, rangeHubsList[i].tHub)
-		if i == bias {
-			break
-		}
-	}
-
-	return resultHubsList
-
 }
