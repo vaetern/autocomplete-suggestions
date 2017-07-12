@@ -1,0 +1,2 @@
+1. Control incoming argument length (>=3)
+2. Suggestion should be case insensitive

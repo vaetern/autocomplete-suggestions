@@ -48,16 +48,14 @@ func main() {
 
 func requestHandler(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-
 	suggestString := r.URL.RawQuery
+
 	result := findSuggestion(suggestString, trafficHubsList, trigramIndexList)
 	elapsed := time.Since(start)
+	printResult := formatResult(result, elapsed)
 
-
-	fmt.Fprintln(w, formatResult(result, elapsed))
+	fmt.Fprintln(w, printResult)
 }
-
-
 
 func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) []trafficHub {
 	result := findByLowestPrefixingDistance(suggestString, trafficHubsList, trigramIndexList)
