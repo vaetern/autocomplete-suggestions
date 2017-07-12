@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"runtime"
 	//"math"
+	"unicode/utf8"
+	"errors"
 )
 
 const JaroWinklerTreshold = 0.8
@@ -47,14 +49,18 @@ func main() {
 }
 
 func requestHandler(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
+
 	suggestString := r.URL.RawQuery
 
-	result := findSuggestion(suggestString, trafficHubsList, trigramIndexList)
-	elapsed := time.Since(start)
-	printResult := formatResult(result, elapsed)
+	printResult, err := getSuggestionForString(suggestString, trafficHubsList, trigramIndexList)
 
-	fmt.Fprintln(w, printResult)
+	if err != nil {
+		fmt.Fprintln(w, "<b style=\"color: red;\">")
+		fmt.Fprintln(w, err)
+		fmt.Fprintln(w, "</b>")
+	} else {
+		fmt.Fprintln(w, printResult)
+	}
 }
 
 func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) []trafficHub {
@@ -65,4 +71,26 @@ func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramI
 
 	result = findIfJaroWinklerClose(suggestString, trafficHubsList)
 	return result
+}
+
+func getSuggestionForString(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) (string, error) {
+
+	var printResult string
+	var exception error
+
+	if utf8.RuneCountInString(suggestString) >= 3 {
+
+		start := time.Now()
+		result := findSuggestion(suggestString, trafficHubsList, trigramIndexList)
+		elapsed := time.Since(start)
+		printResult = formatResult(result, elapsed)
+
+	} else {
+
+		exception = errors.New("Too short argument length")
+		printResult = ""
+
+	}
+
+	return printResult, exception
 }
