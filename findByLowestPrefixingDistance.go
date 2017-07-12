@@ -1,8 +1,9 @@
 package main
 
-import ("sort"
-		s "strings")
-
+import (
+	"sort"
+	s "strings"
+)
 
 type trafficHubWithRange struct {
 	tHub        trafficHub
@@ -27,10 +28,14 @@ func whereIsNeedlePositionRelativeToString(subject string, needle string) int8 {
 	return 0
 }
 
-func findByLowestPrefixingDistance(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) []trafficHub {
+func findByLowestPrefixingDistance(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) ([]trafficHub, error) {
 
 	//set lower\upper bounds for search by trigram index
-	lowerBoundPosition, upperBoundPosition := getTrigramIndexes(suggestString, trigramIndexList)
+	lowerBoundPosition, upperBoundPosition, error := getTrigramIndexes(suggestString, trigramIndexList)
+	if error != nil {
+		return []trafficHub{}, error
+	}
+
 	nextTrigramStartingOffset := upperBoundPosition
 
 	var medianPosition int
@@ -63,7 +68,6 @@ func findByLowestPrefixingDistance(suggestString string, trafficHubsList []traff
 		}
 	}
 
-
 	var tHub trafficHub
 
 	//pick some(10, 15, HowManySuggestionsToReturn) traffic hubs that satisfies suggest conditions
@@ -89,5 +93,5 @@ func findByLowestPrefixingDistance(suggestString string, trafficHubsList []traff
 	//transform th+range in th
 	suggestedTrafficHubList := trafficHubWithRangeListToTrafficHubList(suggestedTrafficHubWithRangeList)
 
-	return suggestedTrafficHubList
+	return suggestedTrafficHubList, error
 }

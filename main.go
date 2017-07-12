@@ -64,8 +64,8 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramIndexList []trigramIndex) []trafficHub {
-	result := findByLowestPrefixingDistance(suggestString, trafficHubsList, trigramIndexList)
-	if len(result) > 0 {
+	result, err := findByLowestPrefixingDistance(suggestString, trafficHubsList, trigramIndexList)
+	if len(result) > 0 && err == nil {
 		return result
 	}
 
