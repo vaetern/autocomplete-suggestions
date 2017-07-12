@@ -71,7 +71,8 @@ func findByLowestPrefixingDistance(suggestString string, trafficHubsList []traff
 	bias := HowManySuggestionsToReturn
 	for i := offsetToStartSuggestions; i < nextTrigramStartingOffset; i++ {
 		tHub = trafficHubsList[i]
-		stringRange := s.Index(tHub.name, suggestString)
+		//find distance in case insensitive manner
+		stringRange := s.Index(s.ToLower(tHub.name), s.ToLower(suggestString))
 		if stringRange >= 0 {
 			suggestedTrafficHubWithRangeList = append(suggestedTrafficHubWithRangeList, trafficHubWithRange{tHub, stringRange})
 		}
