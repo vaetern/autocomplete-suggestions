@@ -4,7 +4,6 @@ import (
 	"time"
 	"database/sql"
 	"log"
-	"fmt"
 	s "strings"
 )
 
@@ -41,6 +40,8 @@ func hydrateDataFromDb(service hydrationService) ([]trafficHub, []trigramIndex) 
 
 	var slidingTrigram string
 
+	log.Println("Start populating ", time.Since(timeStart))
+
 	for rows.Next() {
 		err := rows.Scan(&objectId, &content)
 		if err != nil {
@@ -61,6 +62,6 @@ func hydrateDataFromDb(service hydrationService) ([]trafficHub, []trigramIndex) 
 
 	defer db.Close()
 
-	fmt.Println("Ready in ", time.Since(timeStart))
+	log.Println("Ready in ", time.Since(timeStart))
 	return trafficHubsList, trigramIndexList
 }
