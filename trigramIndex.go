@@ -28,5 +28,11 @@ func getTrigramIndexes(suggestString string, trigramIndexList []trigramIndex) (i
 		}
 	}
 
+	//if nothing was found
+	if indexLow == -1 && indexHigh == -1 {
+		err = errors.New("No trigram index to aim for")
+		return indexLow, indexHigh, err
+	}
+
 	return indexLow, indexHigh, err
 }
