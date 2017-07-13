@@ -21,7 +21,7 @@ func getTrigramIndexes(suggestString string, trigramIndexList []trigramIndex) (i
 	}
 
 	for index, trigramIndex := range trigramIndexList {
-		if s.EqualFold(trigramIndex.trigram, suggestString[0:3]) { //todo: out of bounds! panic maybe
+		if s.EqualFold(trigramIndex.trigram, suggestString[0:3]) {
 			indexLow = trigramIndex.offset
 			indexHigh = trigramIndexList[index+1].offset //todo: out of bounds!
 			break
