@@ -1,7 +1,7 @@
 package main
 
 type trafficHub struct {
-	id   int
+	id   string
 	name string
 }
 

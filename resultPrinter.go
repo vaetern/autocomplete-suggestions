@@ -2,7 +2,6 @@ package main
 
 import (
 	"time"
-	"strconv"
 )
 
 func formatResult(resultList []trafficHub, elapsedTime time.Duration) string{
@@ -13,7 +12,7 @@ func formatResult(resultList []trafficHub, elapsedTime time.Duration) string{
 		resultingString += "\n" +
 			resultList[i].name +
 			"|"  +
-			strconv.Itoa(resultList[i].id)
+			resultList[i].id
 	}
 
 	return resultingString
