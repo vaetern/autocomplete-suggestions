@@ -72,7 +72,7 @@ func findSuggestion(suggestString string, trafficHubsList []trafficHub, trigramI
 		return result
 	}
 
-	result = findIfJaroWinklerClose(suggestString, trafficHubsList)
+	//result = findIfJaroWinklerClose(suggestString, trafficHubsList)
 	return result
 }
 
