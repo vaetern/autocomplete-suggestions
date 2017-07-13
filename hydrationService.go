@@ -22,12 +22,12 @@ func hydrateDataFromDb(service hydrationService) ([]trafficHub, []trigramIndex) 
 	}
 
 	var (
-		objectId int
-		content  string
+		uic  string
+		name string
 	)
-	rows, err := db.Query("select objectId, content from traffic_hub_translation WHERE content<>'' " +
-	//"AND content LIKE 'Zar%'" +
-		" ORDER BY content")
+	rows, err := db.Query("SELECT `uic`, `name` FROM traffic_hub WHERE `name`<>'' AND `uic` IS NOT NULL " +
+	//"AND name LIKE 'Zar%'" +
+		" ORDER BY name")
 
 	if err != nil {
 		log.Fatal(err)
@@ -43,14 +43,14 @@ func hydrateDataFromDb(service hydrationService) ([]trafficHub, []trigramIndex) 
 	log.Println("Start populating ", time.Since(timeStart))
 
 	for rows.Next() {
-		err := rows.Scan(&objectId, &content)
+		err := rows.Scan(&uic, &name)
 		if err != nil {
 			log.Fatal(err)
 		}
 		//trigram index add block
-		trafficHubsList = append(trafficHubsList, trafficHub{objectId, content})
-		if len(content) > 2 && !s.EqualFold(slidingTrigram, content[0:3]) {
-			slidingTrigram = s.ToLower(content[0:3])
+		trafficHubsList = append(trafficHubsList, trafficHub{uic, name})
+		if len(name) > 2 && !s.EqualFold(slidingTrigram, name[0:3]) {
+			slidingTrigram = s.ToLower(name[0:3])
 			trigramIndexList = append(trigramIndexList, trigramIndex{len(trafficHubsList) - 1, slidingTrigram})
 		}
 	}
