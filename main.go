@@ -3,15 +3,12 @@ package main
 import (
 	"fmt"
 	"time"
-	"log"
-
 	_ "github.com/go-sql-driver/mysql"
-	//"os"
 	"net/http"
 	"runtime"
-	//"math"
 	"unicode/utf8"
 	"errors"
+	"log"
 )
 
 const JaroWinklerTreshold = 0.8
@@ -20,23 +17,29 @@ const HowManySuggestionsToReturn = 10
 
 const DataSourceName = "user:user@tcp(127.0.0.1:3306)/acr"
 
+const MaxProcesses = 8
+
 var trafficHubsList = []trafficHub{}
 
 var trigramIndexList = []trigramIndex{}
 
 func main() {
 
-	runtime.GOMAXPROCS(8)
+	runtime.GOMAXPROCS(MaxProcesses)
 
 	hydrationService := hydrationService{"mysql", DataSourceName}
 
 	trafficHubsList, trigramIndexList = hydrateDataFromDb(hydrationService)
 
+	log.Println("Done hydrating pool")
+
+	// --- debug ---
 	//timeStart := time.Now()
-	//result := findSuggestion("Paris+Airport", trafficHubsList, trigramIndexList)
+	//result := findSuggestion("fffff", trafficHubsList, trigramIndexList)
 	//
 	//fmt.Println(result)
 	//fmt.Println(time.Since(timeStart))
+	// --- debug ---
 
 	http.HandleFunc("/", requestHandler) // each request calls requestHandler
 	server := &http.Server{
@@ -84,6 +87,9 @@ func getSuggestionForString(suggestString string, trafficHubsList []trafficHub, 
 		result := findSuggestion(suggestString, trafficHubsList, trigramIndexList)
 		elapsed := time.Since(start)
 		printResult = formatResult(result, elapsed)
+		if elapsed.Seconds() > 0.01 {
+			log.Println(elapsed.Seconds(), suggestString)
+		}
 
 	} else {
 
